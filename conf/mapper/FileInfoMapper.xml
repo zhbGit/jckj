@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wtgkpt.mapper.FileInfoMapper">
+	<!-- 批量添加 -->
+	<insert id="saveFileInfo">
+		<!-- 获取Oracle中自动增长 -->	 
+		<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">
+			SELECT S_T_FILE_INFO.nextval FROM DUAL	
+		</selectKey>
+		INSERT INTO t_FILE_INFO 
+		SELECT S_T_FILE_INFO.nextval, m.* FROM(
+		<foreach collection="list" index="" item="item" separator="union all">
+			select 
+			#{item.userId}, 
+			#{item.fileName}, 
+			#{item.fileType}, 
+			#{item.filePath}, 
+			#{item.createTime} 
+			from dual
+		</foreach>
+		) m
+	</insert>
+</mapper>

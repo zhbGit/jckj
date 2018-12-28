@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wtgkpt.mapper.UserMapper">
+
+	<select id="getUserByUserName" parameterType="String" resultType="User">
+		SELECT 
+			user_id as id,user_name as userName,password,email,phone,salt 
+		FROM 
+			t_user 
+		WHERE 
+			user_name = #{userName}
+	</select>
+
+	<delete id="deleteBatchByIds">
+		DELETE FROM
+			t_user
+		WHERE 
+			user_id 
+		IN
+		<foreach collection="ids" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<delete id="deleteUserRoleByUserId" parameterType="int">
+		DELETE FROM
+			t_user_role 
+		WHERE
+			user_id = #{userId}
+	</delete>
+	
+	<insert id="saveUserRole">
+		insert into t_user_role (USER_ID,ROLE_ID) values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.userId}, #{item.roleId})
+		</foreach>
+	</insert>
+	
+	<insert id="saveUser" parameterType="User">
+		insert into t_user (USER_NAME,PASSWORD,EMAIL,PHONE,SALT,STATUS,CREATE_TIME,UPDATE_TIME,PHOTO) 
+		values( #{userName}, #{password}, #{email}, #{phone}, #{salt}, #{status}, #{createTime}, #{updateTime}, #{photo})
+	</insert>
+	
+	<insert id="insertInfoBatch">
+		INSERT INTO t_user (USER_NAME,PASSWORD,EMAIL,PHONE,SALT,STATUS,CREATE_TIME,UPDATE_TIME,PHOTO) 
+		SELECT m.* FROM(
+		<foreach collection="list" index="" item="item" separator="union all">
+			select 
+			#{item.userName}, 
+			#{item.password},
+			#{item.email},
+			#{item.phone},
+			#{item.salt},
+			#{item.status},
+			#{item.createTime},
+			#{item.updateTime},
+			#{item.photo}
+			from dual
+		</foreach>
+		) m
+	</insert>
+</mapper>
